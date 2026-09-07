@@ -48,6 +48,8 @@ main {
 
 .btn {
   font: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(255, 180, 84, 0.35);
   border: 1px solid var(--card-edge);
   background: #2a2144;
   color: var(--ink);

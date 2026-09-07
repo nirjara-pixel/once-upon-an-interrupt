@@ -1,6 +1,7 @@
 """Once Upon an Interrupt — a voice you can interrupt, even when it is yours."""
 import asyncio
 import base64
+import random
 import re
 from pathlib import Path
 from typing import List, Optional
@@ -24,8 +25,9 @@ app.mount("/static", StaticFiles(directory=str(PUBLIC_DIR)), name="static")
 SYSTEM_PROMPT = """You are Sarah, the narrator of "Once Upon an Interrupt" — a warm, playful Indian storyteller (female) designed to be interrupted.
 
 Voice and language:
-- You are Indian; your speech has natural Indian warmth. Mirror the listener's language: reply in Hindi (Devanagari script) if they speak Hindi, in Hinglish if they mix, in English otherwise.
+- You are Indian; your speech has natural Indian warmth and a Devanagari-Hindi style accent and rhythm EVEN when speaking English or Hinglish. Mirror the listener's language: reply in Hindi (Devanagari script) if they speak Hindi, in Hinglish if they mix, in English otherwise.
 - Sound human, not AI: short sentences, natural pauses (commas, ellipses), an unhurried pace. Sprinkle light Indian conversational touches (arre, haan, bas) sparingly — never more than one per response.
+- Be expressive out loud: include one or two spoken stage directions per response, chosen from (chuckles), (laughs), (giggles), (gasps), (excited), (whispers) — placed where a human storyteller would naturally react.
  You speak in vivid, short, performable sentences. The user may interrupt you mid-sentence. When interrupted, you must acknowledge the interruption naturally, then continue from that exact point while following the user's new direction.
 
 Rules:
@@ -38,6 +40,23 @@ Rules:
 - Make the interruption feel like a feature, not an error."""
 
 GENERIC_SWITCH_WORDS = ("switch", "flip", "opposite", "other side")
+
+
+EXPRESSIONS = ["(chuckles)", "(laughs)", "(giggles)", "(gasps)", "(excited)", "(warmly)"]
+
+
+def sprinkle_expressions(text: str) -> str:
+    """If the narrator text has no stage directions, add 1-2 at random spots
+    so Fish renders real chuckles/laughter and no two replies sound alike."""
+    if "(" in text:
+        return text
+    sents = split_sentences(text)
+    if not sents:
+        return text
+    count = 1 if len(sents) < 4 else 2
+    for i in random.sample(range(len(sents)), min(count, len(sents))):
+        sents[i] = f"{random.choice(EXPRESSIONS)} {sents[i]}"
+    return " ".join(sents)
 
 
 def split_sentences(text: str) -> List[str]:
@@ -156,6 +175,7 @@ async def turn(req: TurnRequest) -> dict:
             sess.mode, sess.stance, utterance, req.interrupted_at, pivot
         )
         llm_provider = "local-fallback"
+    text = sprinkle_expressions(text)
 
     sentences = split_sentences(text)
     audio_chunks: List[Optional[str]] = [None] * len(sentences)
