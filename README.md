@@ -4,6 +4,8 @@ A browser-based AI storyteller that speaks in a cloned or selected voice, can be
 
 > *"A voice you can interrupt, even when it is yours."*
 
+**🎮 Live playable demo:** **https://nirjara-pixel.github.io/once-upon-an-interrupt/** — a static *lite* build on GitHub Pages: the full interruption engine (barge-in, echo guard, ✂️ interruption point, switch-debate) running entirely in your browser with a scripted narrator and the browser voice. The **full version** below adds the Llama-3.1-8B brain and Fish.audio cloned voices, and runs with one `uvicorn` command. Use Chrome and allow the mic.
+
 **Stack:** FastAPI + vanilla JS · Hugging Face Router (Llama-3.1-8B-Instruct) · Fish.audio voice cloning + TTS · Web Speech API.
 
 ## The problem
