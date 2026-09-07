@@ -96,6 +96,18 @@ async def index() -> FileResponse:
     return FileResponse(PUBLIC_DIR / "index.html")
 
 
+# index.html uses relative asset paths so the same files also work on
+# GitHub Pages (lite demo); serve them at the root here too.
+@app.get("/styles.css")
+async def styles() -> FileResponse:
+    return FileResponse(PUBLIC_DIR / "styles.css")
+
+
+@app.get("/app.js")
+async def appjs() -> FileResponse:
+    return FileResponse(PUBLIC_DIR / "app.js")
+
+
 @app.get("/health")
 async def health() -> dict:
     return {"ok": True, "service": "once-upon-an-interrupt"}
