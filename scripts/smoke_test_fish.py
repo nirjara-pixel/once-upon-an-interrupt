@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 KEY = os.getenv("FISH_AUDIO_API_KEY", "")
-CANDIDATES = ["s1", "speech-1.5", "speech-1.6", "speech-2.5-pro", "speech-2.6-pro"]
+CANDIDATES = ["s2.1-pro-free", "s1", "speech-1.5", "speech-1.6", "speech-2.5-pro"]
 
 if not KEY or KEY == "replace_me":
     sys.exit("FISH_AUDIO_API_KEY missing — set it in .env")

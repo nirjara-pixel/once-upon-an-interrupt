@@ -152,7 +152,7 @@ Everything voice-critical lives client-side, so stopping is instant — no netwo
 ## Current status — honest note
 
 - **Hugging Face path: LIVE.** `meta-llama/Llama-3.1-8B-Instruct` via the router (`https://router.huggingface.co/v1/chat/completions`) generates the narration.
-- **Fish.audio: key valid, API wallet at 0 credit.** TTS calls currently return **HTTP 402** — Fish's *API credit* is billed separately from platform credit. To activate the cloned-voice path: top up / activate API credit at <https://fish.audio/app/developers>, run `python scripts/smoke_test_fish.py`, and set `FISH_TTS_MODEL` to the best model it reports. Zero code changes needed.
+- **Fish.audio: LIVE via the free S2.1 Pro tier.** Setting the `model: s2.1-pro-free` header ([Fish's free-API promo](https://fish.audio/blog/s2-1-pro-free-api/)) makes both **TTS and instant voice cloning** work with no API credit — verified live (200 on TTS with the Sarah voice, 201 on clone). Configured via `FISH_TTS_MODEL=s2.1-pro-free`. Notes: fair-use limits, no SLA, requests may be used by Fish for model improvement. Paid model names (`s1`, `speech-2.5-pro`) return 402 until the API wallet is funded at <https://fish.audio/app/developers>.
 - Until then the **browser `speechSynthesis` voice carries the demo** — interruption, exact-point resume, and debate switching are all fully functional on it.
 
 ## Setup

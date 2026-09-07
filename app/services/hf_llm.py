@@ -33,25 +33,30 @@ async def generate(messages: List[dict]) -> Optional[str]:
     if not settings.has_hf:
         return None
     headers = {"Authorization": f"Bearer {settings.huggingface_api_key}"}
-    async with httpx.AsyncClient(timeout=25) as client:
+    # the router's CDN drops TLS connects intermittently — retry at the
+    # transport level, and give each model two application-level tries
+    transport = httpx.AsyncHTTPTransport(retries=3)
+    async with httpx.AsyncClient(timeout=25, transport=transport) as client:
         for model in _candidate_models():
-            try:
-                resp = await client.post(
-                    ROUTER_URL,
-                    headers=headers,
-                    json={
-                        "model": model,
-                        "messages": messages,
-                        "max_tokens": 260,
-                        "temperature": 0.9,
-                    },
-                )
-                if resp.status_code == 200:
-                    text = resp.json()["choices"][0]["message"]["content"].strip()
-                    if text:
-                        return text
-            except (httpx.HTTPError, KeyError, IndexError, ValueError):
-                continue
+            for _ in range(2):
+                try:
+                    resp = await client.post(
+                        ROUTER_URL,
+                        headers=headers,
+                        json={
+                            "model": model,
+                            "messages": messages,
+                            "max_tokens": 260,
+                            "temperature": 0.9,
+                        },
+                    )
+                    if resp.status_code == 200:
+                        text = resp.json()["choices"][0]["message"]["content"].strip()
+                        if text:
+                            return text
+                    break  # non-200: don't re-try same model, move on
+                except (httpx.HTTPError, KeyError, IndexError, ValueError):
+                    continue
     return None
 
 

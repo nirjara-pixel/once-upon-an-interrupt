@@ -24,7 +24,7 @@ jobs:
       FISH_AUDIO_API_KEY: ${{ secrets.FISH_AUDIO_API_KEY }}
       HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}
       HF_MODEL: ${{ vars.HF_MODEL || 'meta-llama/Llama-3.1-8B-Instruct' }}
-      FISH_TTS_MODEL: ${{ vars.FISH_TTS_MODEL || 's1' }}
+      FISH_TTS_MODEL: ${{ vars.FISH_TTS_MODEL || 's2.1-pro-free' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
