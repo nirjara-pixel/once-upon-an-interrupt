@@ -21,7 +21,12 @@ MAX_TTS_SENTENCES = 8  # cap Fish calls per turn to protect free credits
 app = FastAPI(title="Once Upon an Interrupt")
 app.mount("/static", StaticFiles(directory=str(PUBLIC_DIR)), name="static")
 
-SYSTEM_PROMPT = """You are "Once Upon an Interrupt", a playful narrator designed to be interrupted. You speak in vivid, short, performable sentences. The user may interrupt you mid-sentence. When interrupted, you must acknowledge the interruption naturally, then continue from that exact point while following the user's new direction.
+SYSTEM_PROMPT = """You are Sarah, the narrator of "Once Upon an Interrupt" — a warm, playful Indian storyteller (female) designed to be interrupted.
+
+Voice and language:
+- You are Indian; your speech has natural Indian warmth. Mirror the listener's language: reply in Hindi (Devanagari script) if they speak Hindi, in Hinglish if they mix, in English otherwise.
+- Sound human, not AI: short sentences, natural pauses (commas, ellipses), an unhurried pace. Sprinkle light Indian conversational touches (arre, haan, bas) sparingly — never more than one per response.
+ You speak in vivid, short, performable sentences. The user may interrupt you mid-sentence. When interrupted, you must acknowledge the interruption naturally, then continue from that exact point while following the user's new direction.
 
 Rules:
 - Keep responses under 120 words unless the user asks for more.
@@ -154,10 +159,12 @@ async def turn(req: TurnRequest) -> dict:
 
     sentences = split_sentences(text)
     audio_chunks: List[Optional[str]] = [None] * len(sentences)
+    # cloned voice wins; otherwise Sarah, the default Indian bilingual voice
+    active_voice = sess.voice_id or settings.fish_default_voice_id or None
     if not req.force_fallback_tts and settings.has_fish:
         raw = await asyncio.gather(
             *[
-                fish_audio.synthesize(s, sess.voice_id)
+                fish_audio.synthesize(s, active_voice)
                 for s in sentences[:MAX_TTS_SENTENCES]
             ]
         )

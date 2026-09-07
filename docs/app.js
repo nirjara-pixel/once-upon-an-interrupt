@@ -105,8 +105,8 @@ function setStatus(s) {
 function setVoiceBadge(provider) {
   el.voiceBadge.classList.remove("hidden");
   el.voiceBadge.textContent = provider === "fish.audio"
-    ? (state.voiceId ? "Fish voice (cloned)" : "Fish voice")
-    : "Browser voice";
+    ? (state.voiceId ? "Your cloned voice (Fish)" : "Sarah · Indian voice (Fish)")
+    : "Sarah · browser voice";
 }
 
 function addTranscript(role, text) {
@@ -167,11 +167,47 @@ function playNext(narratorDiv) {
   }
 }
 
+// ---------- Sarah: Indian female voice for the browser fallback ----------
+let voiceCache = [];
+function refreshVoices() { voiceCache = speechSynthesis.getVoices() || []; }
+if (window.speechSynthesis) {
+  refreshVoices();
+  speechSynthesis.onvoiceschanged = refreshVoices;
+}
+const DEVANAGARI = /[ऀ-ॿ]/;
+
+function pickVoice(text) {
+  if (!voiceCache.length) refreshVoices();
+  const byName = (names) =>
+    voiceCache.find((v) => names.some((n) => v.name.toLowerCase().includes(n)));
+  const byLang = (lang) =>
+    voiceCache.find((v) => (v.lang || "").toLowerCase().startsWith(lang));
+  if (DEVANAGARI.test(text)) {
+    // Hindi text -> a Devanagari-capable voice (Lekha on macOS/iOS,
+    // Google हिन्दी on Chrome, Swara/Kalpana on Windows)
+    return byName(["lekha", "हिन्दी", "swara", "kalpana", "hindi"]) || byLang("hi") || null;
+  }
+  // English/Hinglish -> prefer a voice literally named Sarah, then Indian
+  // English female voices, then any Indian-accent voice
+  return (
+    byName(["sarah"]) ||
+    byName(["kiyara", "isha", "heera", "veena", "neerja", "aditi"]) ||
+    byLang("en-in") ||
+    byName(["lekha", "हिन्दी"]) ||
+    byLang("hi") ||
+    null
+  );
+}
+
 function speakFallback(sentence, narratorDiv) {
   if (!window.speechSynthesis) { playNext(narratorDiv); return; }
   const clean = sentence.replace(/\([a-z ]+\)/gi, ""); // strip (chuckles) markers
   const u = new SpeechSynthesisUtterance(clean);
-  u.rate = 1.02; u.pitch = 1.05;
+  const voice = pickVoice(clean);
+  if (voice) { u.voice = voice; u.lang = voice.lang; }
+  else u.lang = DEVANAGARI.test(clean) ? "hi-IN" : "en-IN";
+  // slightly slow, human pace — not sluggish
+  u.rate = 0.9; u.pitch = 1.0;
   u.onend = () => playNext(narratorDiv);
   u.onerror = () => playNext(narratorDiv);
   state.currentUtterance = u;
@@ -225,7 +261,8 @@ function initRecognition() {
   const rec = new SR();
   rec.continuous = true;
   rec.interimResults = true;
-  rec.lang = "en-US";
+  const langSel = document.getElementById("lang-select");
+  rec.lang = langSel ? langSel.value : "en-IN"; // Indian English handles Hinglish too
   rec.onresult = (ev) => {
     let latest = "", isFinal = false;
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
@@ -391,8 +428,18 @@ el.textInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyp
 el.recordBtn.addEventListener("click", toggleRecording);
 el.skipCloneBtn.addEventListener("click", () => {
   state.voiceId = null;
-  el.cloneStatus.textContent = "Using the demo voice. You can clone later anytime.";
+  el.cloneStatus.textContent = "Sarah will narrate — warm Indian voice, Hindi/Hinglish/English.";
 });
+
+const langSelect = document.getElementById("lang-select");
+if (langSelect) {
+  langSelect.addEventListener("change", () => {
+    if (state.recognition) {
+      state.recognition.lang = langSelect.value;
+      try { state.recognition.stop(); } catch (_) {} // onend auto-restarts with new lang
+    }
+  });
+}
 
 if (LITE) {
   el.voiceBadge.classList.remove("hidden");

@@ -8,6 +8,8 @@ A browser-based AI storyteller that speaks in a cloned or selected voice, can be
 
 **Stack:** FastAPI + vanilla JS · Hugging Face Router (Llama-3.1-8B-Instruct) · Fish.audio voice cloning + TTS · Web Speech API.
 
+**Default narrator: “Sarah”** — a warm Indian female voice (Fish marketplace *Gentle Hindi Female*, `FISH_DEFAULT_VOICE_ID`) that speaks **Hindi (Devanagari), Hinglish and English** at a relaxed human pace. The browser-voice fallback mirrors this by auto-picking Indian voices (Lekha / Google हिन्दी / en-IN) per sentence script, and the LLM persona replies in whichever of the three languages you speak. Cloning your own voice overrides Sarah for that session.
+
 ## The problem
 
 **Problem 5 · A Voice You Can Interrupt** — ITGeeks Vibe Coding Round.

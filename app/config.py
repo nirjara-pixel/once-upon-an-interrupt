@@ -13,6 +13,10 @@ class Settings:
             "HF_MODEL", "meta-llama/Llama-3.1-8B-Instruct"
         )
         self.fish_tts_model: str = os.getenv("FISH_TTS_MODEL", "s1")
+        # "Sarah" — Fish marketplace "Gentle Hindi Female" (hi+en, Indian accent)
+        self.fish_default_voice_id: str = os.getenv(
+            "FISH_DEFAULT_VOICE_ID", "fc53c5a8a3fd4e2aaa1d4b7eded7ef3f"
+        )
         self.app_env: str = os.getenv("APP_ENV", "development")
 
     @property

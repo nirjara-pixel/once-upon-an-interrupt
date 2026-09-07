@@ -20,7 +20,7 @@
         <button id="record-btn" class="btn">🎙️ Record 20s voice sample</button>
         <button id="skip-clone-btn" class="btn ghost">Skip clone, use demo voice</button>
       </div>
-      <p id="clone-status" class="status-line">No voice cloned yet — demo voice ready.</p>
+      <p id="clone-status" class="status-line">Default narrator: <strong>Sarah</strong> — warm Indian voice, speaks Hindi, Hinglish &amp; English. Clone your own to replace her.</p>
     </section>
 
     <!-- 2 · Mode -->
@@ -56,6 +56,13 @@
     <!-- 4 · Interrupt controls -->
     <section class="card" id="interrupt-card">
       <h2>4 · Interrupt the voice</h2>
+      <div class="row">
+        <label class="status-line" for="lang-select">I will speak in:</label>
+        <select id="lang-select">
+          <option value="en-IN" selected>English / Hinglish (India)</option>
+          <option value="hi-IN">हिन्दी</option>
+        </select>
+      </div>
       <p id="interim" class="interim">…listening for your voice…</p>
       <div class="row">
         <input type="text" id="text-input"
