@@ -9,6 +9,8 @@ class Settings:
     def __init__(self) -> None:
         self.fish_audio_api_key: str = os.getenv("FISH_AUDIO_API_KEY", "")
         self.huggingface_api_key: str = os.getenv("HUGGINGFACE_API_KEY", "")
+        self.groq_api_key: str = os.getenv("GROQ_API_KEY", "")
+        self.groq_model: str = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
         self.hf_model: str = os.getenv(
             "HF_MODEL", "meta-llama/Llama-3.1-8B-Instruct"
         )
@@ -26,6 +28,10 @@ class Settings:
     @property
     def has_hf(self) -> bool:
         return bool(self.huggingface_api_key) and self.huggingface_api_key != "replace_me"
+
+    @property
+    def has_groq(self) -> bool:
+        return bool(self.groq_api_key) and self.groq_api_key != "replace_me"
 
 
 settings = Settings()

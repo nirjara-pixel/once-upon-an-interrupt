@@ -28,35 +28,55 @@ def _candidate_models() -> List[str]:
     return out
 
 
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+
+async def _try_chat(client, url, headers, model, messages) -> Optional[str]:
+    for _ in range(2):
+        try:
+            resp = await client.post(
+                url,
+                headers=headers,
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "max_tokens": 260,
+                    "temperature": 0.9,
+                },
+            )
+            if resp.status_code == 200:
+                text = resp.json()["choices"][0]["message"]["content"].strip()
+                if text:
+                    return text
+            return None  # non-200: caller moves to next model/provider
+        except (httpx.HTTPError, KeyError, IndexError, ValueError):
+            continue
+    return None
+
+
 async def generate(messages: List[dict]) -> Optional[str]:
-    """Return narrator text from HF, or None so the caller uses the local fallback."""
-    if not settings.has_hf:
+    """Return narrator text from Groq (fastest) or HF, else None -> local fallback."""
+    if not settings.has_hf and not settings.has_groq:
         return None
-    headers = {"Authorization": f"Bearer {settings.huggingface_api_key}"}
-    # the router's CDN drops TLS connects intermittently — retry at the
-    # transport level, and give each model two application-level tries
+    # transport-level retries: the HF router CDN drops TLS connects sometimes
     transport = httpx.AsyncHTTPTransport(retries=3)
     async with httpx.AsyncClient(timeout=25, transport=transport) as client:
-        for model in _candidate_models():
-            for _ in range(2):
-                try:
-                    resp = await client.post(
-                        ROUTER_URL,
-                        headers=headers,
-                        json={
-                            "model": model,
-                            "messages": messages,
-                            "max_tokens": 260,
-                            "temperature": 0.9,
-                        },
-                    )
-                    if resp.status_code == 200:
-                        text = resp.json()["choices"][0]["message"]["content"].strip()
-                        if text:
-                            return text
-                    break  # non-200: don't re-try same model, move on
-                except (httpx.HTTPError, KeyError, IndexError, ValueError):
-                    continue
+        if settings.has_groq:
+            text = await _try_chat(
+                client,
+                GROQ_URL,
+                {"Authorization": f"Bearer {settings.groq_api_key}"},
+                settings.groq_model,
+                messages,
+            )
+            if text:
+                return text
+        if settings.has_hf:
+            headers = {"Authorization": f"Bearer {settings.huggingface_api_key}"}
+            for model in _candidate_models():
+                text = await _try_chat(client, ROUTER_URL, headers, model, messages)
+                if text:
+                    return text
     return None
 
 
