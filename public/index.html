@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Once Upon an Interrupt</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Once Upon an Interrupt</h1>
+    <p class="subtitle">A voice you can interrupt, even when it is yours.</p>
+  </header>
+
+  <main>
+    <!-- 1 · Setup / voice clone -->
+    <section class="card" id="setup-card">
+      <h2>1 · Your narrator's voice</h2>
+      <div class="row">
+        <button id="record-btn" class="btn">🎙️ Record 20s voice sample</button>
+        <button id="skip-clone-btn" class="btn ghost">Skip clone, use demo voice</button>
+      </div>
+      <p id="clone-status" class="status-line">No voice cloned yet — demo voice ready.</p>
+    </section>
+
+    <!-- 2 · Mode -->
+    <section class="card" id="mode-card">
+      <h2>2 · Pick a game</h2>
+      <div class="row modes">
+        <label class="mode-option">
+          <input type="radio" name="mode" value="story" checked />
+          <span>📖 Story Mode</span>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="mode" value="debate" />
+          <span>🎭 Switch Debate Mode</span>
+        </label>
+      </div>
+      <textarea id="prompt-input" rows="2"
+        placeholder="Start a story about a dragon, a hostel room, and a missing assignment..."></textarea>
+      <button id="start-btn" class="btn primary">▶ Start talking</button>
+    </section>
+
+    <!-- 3 · Live narrator -->
+    <section class="card" id="narrator-card">
+      <h2>3 · The narrator</h2>
+      <div class="badges">
+        <span class="badge" id="status-badge">idle</span>
+        <span class="badge hidden" id="mic-badge">Mic active</span>
+        <span class="badge hidden" id="voice-badge">Browser voice</span>
+      </div>
+      <div id="transcript" class="transcript" aria-live="polite"></div>
+      <p id="interrupt-point" class="status-line hidden"></p>
+    </section>
+
+    <!-- 4 · Interrupt controls -->
+    <section class="card" id="interrupt-card">
+      <h2>4 · Interrupt the voice</h2>
+      <p id="interim" class="interim">…listening for your voice…</p>
+      <div class="row">
+        <input type="text" id="text-input"
+          placeholder="Type an interruption, e.g. switch, make it horror, add a dinosaur..." />
+        <button id="send-btn" class="btn">Send</button>
+      </div>
+      <button id="interrupt-btn" class="btn danger big">✋ INTERRUPT NOW</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>ITGeeks Vibe Coding Round · Problem 5 · A Voice You Can Interrupt</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
